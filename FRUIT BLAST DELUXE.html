@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit Blast Deluxe - Versión Final</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        /* Header con animaciones optimizadas */
+        .game-header {
+            text-align: center;
+            margin-bottom: 25px;
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+        }
+        
+        .game-title {
+            font-size: 4.2rem;
+            margin-bottom: 8px;
+            text-shadow: 
+                3px 3px 0 #000,
+                0 0 20px rgba(255, 215, 0, 0.6),
+                0 0 40px rgba(255, 215, 0, 0.4);
+            color: #FFD700;
+            letter-spacing: 3px;
+            position: relative;
+            background: linear-gradient(45deg, #FFD700, #FFA500, #FF8C00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes titleGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.7)); }
+            100% { filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.9)); }
+        }
+        
+        .title-decoration {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .decoration-fruit {
+            font-size: 2.8rem;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.4));
+            animation: floatFruit 6s ease-in-out infinite;
+            will-change: transform;
+        }
+        
+        @keyframes floatFruit {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            33% { transform: translateY(-15px) rotate(5deg); }
+            66% { transform: translateY(5px) rotate(-5deg); }
+        }
+        
+        /* Contenedor principal optimizado */
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+            animation: fadeIn 0.8s ease-out;
+            will-change: opacity;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Panel de información optimizado */
+        .info-panel {
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.7), rgba(30, 30, 60, 0.8));
+            border-radius: 20px;
+            padding: 25px;
+            width: 320px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .info-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                #FF6B6B, #4ECDC4, #FFD166, #06D6A0, #EF476F, #9D4EDD);
+            animation: rainbowBorder 8s linear infinite;
+        }
+        
+        @keyframes rainbowBorder {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 400% 0%; }
+        }
+        
+        .stat-box {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+        }
+        
+        .stat-box::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #FFD700, transparent);
+            transition: width 0.3s ease;
+        }
+        
+        .stat-box:hover::after {
+            width: 100%;
+        }
+        
+        .stat-label {
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+            position: relative;
+        }
+        
+        .score-effect {
+            position: absolute;
+            right: 0;
+            top: -30px;
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.4rem;
+            opacity: 0;
+            pointer-events: none;
+            animation: scoreFloat 1.2s ease-out forwards;
+        }
+        
+        @keyframes scoreFloat {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+        
+        /* Tablero de juego optimizado */
+        .game-board {
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.75), rgba(20, 20, 40, 0.85));
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.8),
+                inset 0 0 100px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255, 215, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-board::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg, 
+                transparent 30%, 
+                rgba(255, 255, 255, 0.03) 50%, 
+                transparent 70%
+            );
+            animation: boardShine 12s infinite linear;
+            pointer-events: none;
+        }
+        
+        @keyframes boardShine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-gap: 8px;
+            width: 560px;
+            height: 560px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Celdas optimizadas */
+        .cell {
+            width: 65px;
+            height: 65px;
+            border-radius: 14px;
+            background: radial-gradient(
+                circle at 30% 30%, 
+                rgba(255, 255, 255, 0.12), 
+                rgba(0, 0, 0, 0.35)
+            );
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                inset 0 0 15px rgba(0, 0, 0, 0.4),
+                0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.15s ease;
+            will-change: transform;
+        }
+        
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(
+                circle at var(--mouse-x) var(--mouse-y),
+                rgba(255, 255, 255, 0.15),
+                transparent 70%
+            );
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .cell:hover {
+            transform: scale(1.06) rotate(3deg);
+            box-shadow: 
+                inset 0 0 20px rgba(255, 255, 255, 0.2),
+                0 6px 15px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+        }
+        
+        .cell:hover::before {
+            opacity: 1;
+        }
+        
+        .fruit {
+            width: 55px;
+            height: 55px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.9rem;
+            filter: 
+                drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.6))
+                drop-shadow(0 0 8px currentColor);
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+        }
+        
+        .fruit.selected {
+            animation: fruitPulse 0.8s infinite alternate;
+            transform: scale(1.25) translateZ(10px);
+            filter: 
+                drop-shadow(0 0 15px rgba(255, 255, 255, 0.8))
+                drop-shadow(0 0 25px currentColor);
+            z-index: 20;
+        }
+        
+        @keyframes fruitPulse {
+            0% { 
+                transform: scale(1.2) translateZ(10px);
+                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7))
+                        drop-shadow(0 0 20px currentColor);
+            }
+            100% { 
+                transform: scale(1.35) translateZ(20px);
+                filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.9))
+                        drop-shadow(0 0 35px currentColor);
+            }
+        }
+        
+        /* Controles optimizados */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+        
+        .control-btn {
+            padding: 16px 28px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            min-width: 160px;
+            justify-content: center;
+        }
+        
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent
+            );
+            transition: left 0.6s;
+            z-index: -1;
+        }
+        
+        .control-btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #FF416C, #FF4B2B);
+            color: white;
+            box-shadow: 0 6px 20px rgba(255, 75, 43, 0.5);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #2193b0, #6dd5ed);
+            color: white;
+            box-shadow: 0 6px 20px rgba(33, 147, 176, 0.5);
+        }
+        
+        .btn-special {
+            background: linear-gradient(45deg, #9D4EDD, #560BAD);
+            color: white;
+            box-shadow: 0 6px 20px rgba(157, 78, 221, 0.5);
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-6px) scale(1.05);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .control-btn:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        /* Efectos de partículas optimizados */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+        
+        /* Efectos de animación optimizados */
+        .match-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 3;
+            mix-blend-mode: screen;
+        }
+        
+        .explosion-effect {
+            background: radial-gradient(
+                circle, 
+                var(--explosion-color) 0%, 
+                transparent 70%
+            );
+            animation: explosionAnim 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        @keyframes explosionAnim {
+            0% { transform: scale(0); opacity: 1; }
+            70% { opacity: 0.8; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+        
+        .ring-effect {
+            border: 3px solid var(--ring-color);
+            animation: ringExpand 0.5s ease-out forwards;
+        }
+        
+        @keyframes ringExpand {
+            0% { transform: scale(0); opacity: 1; border-width: 8px; }
+            100% { transform: scale(1.8); opacity: 0; border-width: 1px; }
+        }
+        
+        .swap-animation {
+            animation: swapMove 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes swapMove {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(var(--swap-x), var(--swap-y)) scale(1.12); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        
+        .fall-animation {
+            animation: fallDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        @keyframes fallDown {
+            0% { 
+                transform: translateY(var(--fall-from, -100px)) rotate(var(--fall-rotate, 0deg)); 
+                opacity: 0; 
+            }
+            100% { 
+                transform: translateY(0) rotate(0); 
+                opacity: 1; 
+            }
+        }
+        
+        .spawn-animation {
+            animation: spawnFruit 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        @keyframes spawnFruit {
+            0% { 
+                transform: scale(0) rotate(-180deg); 
+                opacity: 0; 
+            }
+            70% { 
+                transform: scale(1.15) rotate(15deg); 
+            }
+            100% { 
+                transform: scale(1) rotate(0); 
+                opacity: 1; 
+            }
+        }
+        
+        /* Indicador de combo optimizado */
+        .combo-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 
+                0 0 15px rgba(255, 215, 0, 0.8),
+                0 0 30px rgba(255, 215, 0, 0.6);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            text-align: center;
+        }
+        
+        .combo-display.active {
+            animation: comboPop 1.2s ease-out forwards;
+        }
+        
+        @keyframes comboPop {
+            0% { 
+                transform: translate(-50%, -50%) scale(0.5); 
+                opacity: 0; 
+            }
+            20% { 
+                transform: translate(-50%, -50%) scale(1.3); 
+                opacity: 1; 
+            }
+            40% { 
+                transform: translate(-50%, -50%) scale(1); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translate(-50%, -50%) translateY(-120px) scale(0.8); 
+                opacity: 0; 
+            }
+        }
+        
+        /* Panel de frutas */
+        .fruits-panel {
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.6), rgba(30, 30, 60, 0.7));
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 30px;
+            max-width: 800px;
+            width: 100%;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            text-align: center;
+        }
+        
+        .fruits-title {
+            font-size: 1.8rem;
+            color: #FFD700;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .fruits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+        
+        .fruit-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .fruit-item:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .fruit-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.4));
+        }
+        
+        .fruit-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .fruit-value {
+            font-size: 1rem;
+            color: #4CAF50;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        /* Efecto de confeti optimizado */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            top: -20px;
+            opacity: 0;
+            z-index: 1000;
+        }
+        
+        /* Responsive optimizado */
+        @media (max-width: 1100px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .info-panel {
+                width: 560px;
+            }
+        }
+        
+        @media (max-width: 700px) {
+            .game-title {
+                font-size: 3rem;
+            }
+            
+            .decoration-fruit {
+                font-size: 2.2rem;
+            }
+            
+            .board-grid {
+                width: 400px;
+                height: 400px;
+                grid-gap: 6px;
+            }
+            
+            .cell {
+                width: 45px;
+                height: 45px;
+                border-radius: 10px;
+            }
+            
+            .fruit {
+                width: 35px;
+                height: 35px;
+                font-size: 1.9rem;
+            }
+            
+            .info-panel {
+                width: 400px;
+                padding: 20px;
+            }
+            
+            .fruits-grid {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 10px;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .game-title {
+                font-size: 2.5rem;
+            }
+            
+            .board-grid {
+                width: 320px;
+                height: 320px;
+                grid-gap: 4px;
+            }
+            
+            .cell {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .fruit {
+                width: 28px;
+                height: 28px;
+                font-size: 1.5rem;
+            }
+            
+            .info-panel {
+                width: 320px;
+            }
+            
+            .control-btn {
+                padding: 14px 20px;
+                font-size: 1.1rem;
+                min-width: 140px;
+            }
+        }
+        
+        /* Optimizaciones de rendimiento */
+        .will-change-transform {
+            will-change: transform;
+        }
+        
+        .will-change-opacity {
+            will-change: opacity;
+        }
+        
+        /* Efecto de desenfoque para fondos */
+        .blur-background {
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Contenedor de partículas -->
+    <div class="particles-container" id="particlesContainer"></div>
+    
+    <!-- Contenedor de confeti -->
+    <div class="confetti-container" id="confettiContainer"></div>
+    
+    <!-- Header del juego -->
+    <header class="game-header">
+        <h1 class="game-title">FRUIT BLAST DELUXE</h1>
+        
+        <div class="title-decoration">
+            <div class="decoration-fruit" style="color: #FF6B6B;">🍓</div>
+            <div class="decoration-fruit" style="color: #4ECDC4; animation-delay: 0.5s">🍏</div>
+            <div class="decoration-fruit" style="color: #FFD166; animation-delay: 1s">🍋</div>
+            <div class="decoration-fruit" style="color: #06D6A0; animation-delay: 1.5s">🍇</div>
+            <div class="decoration-fruit" style="color: #EF476F; animation-delay: 2s">🍉</div>
+            <div class="decoration-fruit" style="color: #9D4EDD; animation-delay: 2.5s">🍒</div>
+            <div class="decoration-fruit" style="color: #FF9E6D; animation-delay: 3s">🍊</div>
+            <div class="decoration-fruit" style="color: #38B000; animation-delay: 3.5s">🥝</div>
+        </div>
+    </header>
+    
+    <!-- Contenedor principal -->
+    <div class="main-container">
+        <!-- Panel de información -->
+        <div class="info-panel">
+            <div class="stat-box">
+                <span class="stat-label">PUNTAJE</span>
+                <span class="stat-value" id="score">0</span>
+            </div>
+            
+            <div class="stat-box">
+                <span class="stat-label">MOVIMIENTOS</span>
+                <span class="stat-value" id="moves">25</span>
+            </div>
+            
+            <div class="stat-box">
+                <span class="stat-label">NIVEL</span>
+                <span class="stat-value" id="level">1</span>
+            </div>
+            
+            <div class="stat-box">
+                <span class="stat-label">OBJETIVO</span>
+                <span class="stat-value" id="target">1000</span>
+            </div>
+            
+            <div class="stat-box">
+                <span class="stat-label">RÉCORD</span>
+                <span class="stat-value" id="highScore">0</span>
+            </div>
+            
+            <div class="controls">
+                <button class="control-btn btn-primary" id="newGameBtn">
+                    <i class="fas fa-redo"></i> NUEVO JUEGO
+                </button>
+                
+                <button class="control-btn btn-secondary" id="hintBtn">
+                    <i class="fas fa-lightbulb"></i> PISTA
+                </button>
+                
+                <button class="control-btn btn-special" id="powerUpBtn">
+                    <i class="fas fa-bolt"></i> POWER-UP
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tablero de juego -->
+        <div class="game-board">
+            <div class="board-grid" id="board"></div>
+        </div>
+    </div>
+    
+    <!-- Panel de frutas -->
+    <div class="fruits-panel">
+        <h2 class="fruits-title">COLECCIÓN DE FRUTAS</h2>
+        <div class="fruits-grid" id="fruitsGrid">
+            <!-- Las frutas se cargarán con JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // ============================
+        // CONFIGURACIÓN DEL JUEGO
+        // ============================
+        const CONFIG = {
+            BOARD_SIZE: 8,
+            INITIAL_MOVES: 25,
+            TARGET_SCORE: 1000,
+            COMBO_TIMEOUT: 3000,
+            GAME_TIME: 120000, // 2 minutos en milisegundos
+            FRUITS: [
+                { emoji: '🍓', name: 'Fresa', color: '#FF6B6B', value: 10 },
+                { emoji: '🍏', name: 'Manzana', color: '#4ECDC4', value: 15 },
+                { emoji: '🍋', name: 'Limón', color: '#FFD166', value: 20 },
+                { emoji: '🍇', name: 'Uvas', color: '#06D6A0', value: 25 },
+                { emoji: '🍉', name: 'Sandía', color: '#EF476F', value: 30 },
+                { emoji: '🍒', name: 'Cerezas', color: '#9D4EDD', value: 35 },
+                { emoji: '🍊', name: 'Naranja', color: '#FF9E6D', value: 40 },
+                { emoji: '🥝', name: 'Kiwi', color: '#38B000', value: 45 },
+                { emoji: '🍑', name: 'Durazno', color: '#FFB7C5', value: 50 },
+                { emoji: '🍐', name: 'Pera', color: '#C1E1C1', value: 55 },
+                { emoji: '🥭', name: 'Mango', color: '#FFC300', value: 60 },
+                { emoji: '🍍', name: 'Piña', color: '#FFD700', value: 65 }
+            ],
+            POWER_UPS: [
+                { name: 'Rayos X', icon: 'fas fa-bolt', effect: 'Elimina una fila completa' },
+                { name: 'Bomba Frutal', icon: 'fas fa-bomb', effect: 'Elimina un área 3x3' },
+                { name: 'Cambiador', icon: 'fas fa-random', effect: 'Cambia todas las frutas' },
+                { name: 'Congelador', icon: 'fas fa-snowflake', effect: 'Congela el tiempo 10s' }
+            ]
+        };
+
+        // ============================
+        // ESTADO DEL JUEGO
+        // ============================
+        let gameState = {
+            board: [],
+            selectedCell: null,
+            score: 0,
+            moves: CONFIG.INITIAL_MOVES,
+            level: 1,
+            targetScore: CONFIG.TARGET_SCORE,
+            highScore: parseInt(localStorage.getItem('fruitBlastHighScore')) || 0,
+            gameActive: false,
+            comboCount: 0,
+            comboTimeout: null,
+            powerUps: 3,
+            matchesCount: 0,
+            lastMatchSize: 0
+        };
+
+        // ============================
+        // ELEMENTOS DEL DOM
+        // ============================
+        const elements = {
+            board: document.getElementById('board'),
+            score: document.getElementById('score'),
+            moves: document.getElementById('moves'),
+            level: document.getElementById('level'),
+            target: document.getElementById('target'),
+            highScore: document.getElementById('highScore'),
+            newGameBtn: document.getElementById('newGameBtn'),
+            hintBtn: document.getElementById('hintBtn'),
+            powerUpBtn: document.getElementById('powerUpBtn'),
+            particlesContainer: document.getElementById('particlesContainer'),
+            confettiContainer: document.getElementById('confettiContainer'),
+            fruitsGrid: document.getElementById('fruitsGrid')
+        };
+
+        // ============================
+        // INICIALIZACIÓN
+        // ============================
+        function init() {
+            // Inicializar panel de frutas
+            initFruitsPanel();
+            
+            // Inicializar juego
+            initGame();
+            
+            // Configurar event listeners
+            setupEventListeners();
+            
+            // Inicializar efectos de partículas de fondo
+            initBackgroundParticles();
+        }
+
+        function initFruitsPanel() {
+            elements.fruitsGrid.innerHTML = '';
+            
+            CONFIG.FRUITS.forEach(fruit => {
+                const fruitItem = document.createElement('div');
+                fruitItem.className = 'fruit-item';
+                fruitItem.innerHTML = `
+                    <div class="fruit-icon" style="color: ${fruit.color}">${fruit.emoji}</div>
+                    <div class="fruit-name">${fruit.name}</div>
+                    <div class="fruit-value">${fruit.value} pts</div>
+                `;
+                
+                // Efecto al pasar el mouse
+                fruitItem.addEventListener('mouseenter', () => {
+                    createParticles(fruitItem, 3, fruit.color);
+                });
+                
+                elements.fruitsGrid.appendChild(fruitItem);
+            });
+        }
+
+        function initGame() {
+            // Reiniciar estado del juego
+            gameState = {
+                board: [],
+                selectedCell: null,
+                score: 0,
+                moves: CONFIG.INITIAL_MOVES,
+                level: 1,
+                targetScore: CONFIG.TARGET_SCORE,
+                highScore: parseInt(localStorage.getItem('fruitBlastHighScore')) || 0,
+                gameActive: true,
+                comboCount: 0,
+                comboTimeout: null,
+                powerUps: 3,
+                matchesCount: 0,
+                lastMatchSize: 0
+            };
+
+            // Actualizar UI
+            updateGameUI();
+            
+            // Crear tablero
+            createBoard();
+            
+            // Asegurar que no haya combinaciones iniciales
+            while (findMatches().length > 0) {
+                resetBoard();
+            }
+            
+            // Animación de inicio
+            animateBoardStart();
+        }
+
+        // ============================
+        // CREACIÓN DEL TABLERO
+        // ============================
+        function createBoard() {
+            elements.board.innerHTML = '';
+            
+            for (let row = 0; row < CONFIG.BOARD_SIZE; row++) {
+                gameState.board[row] = [];
+                
+                for (let col = 0; col < CONFIG.BOARD_SIZE; col++) {
+                    // Seleccionar fruta aleatoria
+                    const fruit = CONFIG.FRUITS[Math.floor(Math.random() * Math.min(6, CONFIG.FRUITS.length))];
+                    
+                    // Crear celda
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    // Efecto de seguimiento del mouse
+                    cell.addEventListener('mousemove', (e) => {
+                        const rect = cell.getBoundingClientRect();
+                        const x = ((e.clientX - rect.left) / rect.width) * 100;
+                        const y = ((e.clientY - rect.top) / rect.height) * 100;
+                        cell.style.setProperty('--mouse-x', `${x}%`);
+                        cell.style.setProperty('--mouse-y', `${y}%`);
+                    });
+                    
+                    // Crear fruta
+                    const fruitElement = document.createElement('div');
+                    fruitElement.className = 'fruit';
+                    fruitElement.textContent = fruit.emoji;
+                    fruitElement.style.color = fruit.color;
+                    fruitElement.dataset.value = fruit.value;
+                    fruitElement.dataset.type = fruit.name;
+                    
+                    cell.appendChild(fruitElement);
+                    
+                    // Event listener para clic
+                    cell.addEventListener('click', () => handleCellClick(row, col));
+                    
+                    elements.board.appendChild(cell);
+                    gameState.board[row][col] = fruit;
+                }
+            }
+        }
+
+        function resetBoard() {
+            for (let row = 0; row < CONFIG.BOARD_SIZE; row++) {
+                for (let col = 0; col < CONFIG.BOARD_SIZE; col++) {
+                    const fruit = CONFIG.FRUITS[Math.floor(Math.random() * Math.min(6, CONFIG.FRUITS.length))];
+                    gameState.board[row][col] = fruit;
+                }
+            }
+        }
+
+        // ============================
+        // ANIMACIONES DE INICIO
+        // ============================
+        function animateBoardStart() {
+            const cells = document.querySelectorAll('.cell');
+            
+            cells.forEach((cell, index) => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                
+                // Retardo escalonado para efecto cascada
+                const delay = (row * CONFIG.BOARD_SIZE + col) * 20;
+                
+                setTimeout(() => {
+                    cell.classList.add('spawn-animation');
+                    
+                    // Crear partículas en el inicio
+                    const fruit = gameState.board[row][col];
+                    createParticles(cell, 3, fruit.color);
+                    
+                    setTimeout(() => {
+                        cell.classList.remove('spawn-animation');
+                    }, 500);
+                }, delay);
+            });
+        }
+
+        // ============================
+        // MANEJO DE CLICS
+        // ============================
+        function handleCellClick(row, col) {
+            if (!gameState.gameActive) return;
+            
+            const cell = getCellElement(row, col);
+            const fruitElement = cell.querySelector('.fruit');
+            
+            // Efecto de partículas al hacer clic
+            createParticles(cell, 2, gameState.board[row][col].color);
+            
+            // Si no hay celda seleccionada, seleccionar esta
+            if (!gameState.selectedCell) {
+                gameState.selectedCell = { row, col };
+                fruitElement.classList.add('selected');
+                
+                // Animación de selección
+                cell.style.transform = 'scale(1.1) rotate(5deg)';
+                setTimeout(() => {
+                    cell.style.transform = '';
+                }, 200);
+                
+                return;
+            }
+            
+            // Si se hace clic en la misma celda, deseleccionar
+            if (gameState.selectedCell.row === row && gameState.selectedCell.col === col) {
+                gameState.selectedCell = null;
+                fruitElement.classList.remove('selected');
+                return;
+            }
+            
+            // Verificar si son adyacentes
+            const isAdjacent = checkAdjacency(gameState.selectedCell.row, gameState.selectedCell.col, row, col);
+            
+            if (!isAdjacent) {
+                // Deseleccionar anterior y seleccionar nueva
+                const prevCell = getCellElement(gameState.selectedCell.row, gameState.selectedCell.col);
+                prevCell.querySelector('.fruit').classList.remove('selected');
+                
+                gameState.selectedCell = { row, col };
+                fruitElement.classList.add('selected');
+                return;
+            }
+            
+            // Intercambiar frutas
+            swapFruits(gameState.selectedCell.row, gameState.selectedCell.col, row, col, true);
+        }
+
+        function checkAdjacency(row1, col1, row2, col2) {
+            return (
+                (Math.abs(row1 - row2) === 1 && col1 === col2) ||
+                (Math.abs(col1 - col2) === 1 && row1 === row2)
+            );
+        }
+
+        // ============================
+        // INTERCAMBIO DE FRUTAS
+        // ============================
+        function swapFruits(row1, col1, row2, col2, checkMatches = true) {
+            if (!gameState.gameActive) return;
+            
+            const cell1 = getCellElement(row1, col1);
+            const cell2 = getCellElement(row2, col2);
+            const fruit1 = cell1.querySelector('.fruit');
+            const fruit2 = cell2.querySelector('.fruit');
+            
+            // Calcular dirección del intercambio
+            const swapX = (col2 - col1) * 70;
+            const swapY = (row2 - row1) * 70;
+            
+            // Configurar animación
+            fruit1.style.setProperty('--swap-x', `${swapX}px`);
+            fruit1.style.setProperty('--swap-y', `${swapY}px`);
+            fruit2.style.setProperty('--swap-x', `${-swapX}px`);
+            fruit2.style.setProperty('--swap-y', `${-swapY}px`);
+            
+            fruit1.classList.add('swap-animation');
+            fruit2.classList.add('swap-animation');
+            
+            // Intercambiar en el array
+            [gameState.board[row1][col1], gameState.board[row2][col2]] = 
+            [gameState.board[row2][col2], gameState.board[row1][col1]];
+            
+            // Crear partículas durante el intercambio
+            createParticles(cell1, 2, gameState.board[row2][col2].color);
+            createParticles(cell2, 2, gameState.board[row1][col1].color);
+            
+            setTimeout(() => {
+                fruit1.classList.remove('swap-animation');
+                fruit2.classList.remove('swap-animation');
+                fruit1.style.removeProperty('--swap-x');
+                fruit1.style.removeProperty('--swap-y');
+                fruit2.style.removeProperty('--swap-x');
+                fruit2.style.removeProperty('--swap-y');
+                
+                // Actualizar display
+                updateBoardDisplay();
+                
+                // Verificar coincidencias
+                if (checkMatches) {
+                    const matches = findMatches();
+                    
+                    if (matches.length > 0) {
+                        // Hay coincidencias
+                        processMatches(matches);
+                        gameState.moves--;
+                        elements.moves.textContent = gameState.moves;
+                        
+                        // Efecto visual de movimientos
+                        elements.moves.style.transform = 'scale(1.3)';
+                        setTimeout(() => {
+                            elements.moves.style.transform = 'scale(1)';
+                        }, 300);
+                        
+                        // Verificar estado del juego
+                        checkGameStatus();
+                    } else {
+                        // No hay coincidencias, revertir
+                        setTimeout(() => {
+                            // Animación de error
+                            cell1.style.animation = 'shake 0.5s';
+                            cell2.style.animation = 'shake 0.5s';
+                            
+                            // Crear partículas de error
+                            createParticles(cell1, 5, '#FF0000');
+                            createParticles(cell2, 5, '#FF0000');
+                            
+                            setTimeout(() => {
+                                cell1.style.animation = '';
+                                cell2.style.animation = '';
+                            }, 500);
+                            
+                            setTimeout(() => {
+                                swapFruits(row1, col1, row2, col2, false);
+                            }, 600);
+                        }, 300);
+                    }
+                }
+                
+                // Limpiar selección
+                if (gameState.selectedCell) {
+                    const prevCell = getCellElement(gameState.selectedCell.row, gameState.selectedCell.col);
+                    if (prevCell) prevCell.querySelector('.fruit').classList.remove('selected');
+                }
+                gameState.selectedCell = null;
+            }, 400);
+        }
+
+        // ============================
+        // BÚSQUEDA DE COINCIDENCIAS
+        // ============================
+        function findMatches() {
+            const matches = [];
+            const visited = Array(CONFIG.BOARD_SIZE).fill().map(() => Array(CONFIG.BOARD_SIZE).fill(false));
+            
+            // Buscar horizontalmente
+            for (let row = 0; row < CONFIG.BOARD_SIZE; row++) {
+                for (let col = 0; col < CONFIG.BOARD_SIZE - 2; col++) {
+                    if (visited[row][col]) continue;
+                    
+                    const fruit = gameState.board[row][col];
+                    if (!fruit) continue;
+                    
+                    let matchLength = 1;
+                    while (col + matchLength < CONFIG.BOARD_SIZE && 
+                           gameState.board[row][col + matchLength] === fruit) {
+                        matchLength++;
+                    }
+                    
+                    if (matchLength >= 3) {
+                        const match = {
+                            fruit: fruit,
+                            positions: []
+                        };
+                        
+                        for (let c = col; c < col + matchLength; c++) {
+                            match.positions.push({ row, col: c });
+                            visited[row][c] = true;
+                        }
+                        
+                        matches.push(match);
+                        col += matchLength - 1;
+                    }
+                }
+            }
+            
+            // Reset visited para búsqueda vertical
+            visited.forEach(row => row.fill(false));
+            
+            // Buscar verticalmente
+            for (let col = 0; col < CONFIG.BOARD_SIZE; col++) {
+                for (let row = 0; row < CONFIG.BOARD_SIZE - 2; row++) {
+                    if (visited[row][col]) continue;
+                    
+                    const fruit = gameState.board[row][col];
+                    if (!fruit) continue;
+                    
+                    let matchLength = 1;
+                    while (row + matchLength < CONFIG.BOARD_SIZE && 
+                           gameState.board[row + matchLength][col] === fruit) {
+                        matchLength++;
+                    }
+                    
+                    if (matchLength >= 3) {
+                        const match = {
+                            fruit: fruit,
+                            positions: []
+                        };
+                        
+                        for (let r = row; r < row + matchLength; r++) {
+                            match.positions.push({ row: r, col });
+                            visited[r][col] = true;
+                        }
+                        
+                        matches.push(match);
+                        row += matchLength - 1;
+                    }
+                }
+            }
+            
+            return matches;
+        }
+
+        // ============================
+        // PROCESAMIENTO DE COINCIDENCIAS
+        // ============================
+        function processMatches(matches) {
+            // Incrementar combo
+            gameState.comboCount++;
+            gameState.matchesCount += matches.length;
+            
+            // Mostrar indicador de combo
+            if (gameState.comboCount > 1) {
+                showComboIndicator(gameState.comboCount);
+            }
+            
+            // Reiniciar temporizador de combo
+            if (gameState.comboTimeout) clearTimeout(gameState.comboTimeout);
+            gameState.comboTimeout = setTimeout(() => {
+                gameState.comboCount = 0;
+            }, CONFIG.COMBO_TIMEOUT);
+            
+            // Calcular puntuación
+            let totalScore = 0;
+            const positionsToRemove = [];
+            
+            matches.forEach(match => {
+                gameState.lastMatchSize = Math.max(gameState.lastMatchSize, match.positions.length);
+                
+                match.positions.forEach(pos => {
+                    if (!positionsToRemove.some(p => p.row === pos.row && p.col === pos.col)) {
+                        positionsToRemove.push(pos);
+                        totalScore += match.fruit.value;
+                        
+                        // Animación de eliminación
+                        const cell = getCellElement(pos.row, pos.col);
+                        createMatchEffects(cell, match.fruit.color);
+                    }
+                });
+            });
+            
+            // Bonificaciones
+            const sizeBonus = gameState.lastMatchSize > 3 ? (gameState.lastMatchSize - 3) * 50 : 0;
+            const comboBonus = gameState.comboCount > 1 ? gameState.comboCount * 100 : 0;
+            const matchBonus = matches.length > 1 ? matches.length * 75 : 0;
+            
+            totalScore += sizeBonus + comboBonus + matchBonus;
+            
+            // Mostrar efecto de puntuación
+            showScoreEffect(totalScore);
+            
+            // Actualizar puntuación
+            gameState.score += totalScore;
+            updateGameUI();
+            
+            // Eliminar frutas
+            positionsToRemove.forEach(pos => {
+                gameState.board[pos.row][pos.col] = null;
+            });
+            
+            // Actualizar tablero
+            setTimeout(() => {
+                updateBoardDisplay();
+                dropFruits();
+            }, 600);
+        }
+
+        function createMatchEffects(cell, color) {
+            // Efecto de explosión
+            const explosion = document.createElement('div');
+            explosion.className = 'match-effect explosion-effect';
+            explosion.style.setProperty('--explosion-color', color);
+            cell.appendChild(explosion);
+            
+            // Efecto de anillo
+            const ring = document.createElement('div');
+            ring.className = 'match-effect ring-effect';
+            ring.style.setProperty('--ring-color', color);
+            cell.appendChild(ring);
+            
+            // Partículas
+            createParticles(cell, 8, color);
+            
+            // Limpiar efectos
+            setTimeout(() => {
+                if (cell.contains(explosion)) cell.removeChild(explosion);
+                if (cell.contains(ring)) cell.removeChild(ring);
+            }, 600);
+        }
+
+        // ============================
+        // CAÍDA DE FRUTAS
+        // ============================
+        function dropFruits() {
+            const fallingCells = [];
+            
+            for (let col = 0; col < CONFIG.BOARD_SIZE; col++) {
+                let emptySpaces = 0;
+                
+                for (let row = CONFIG.BOARD_SIZE - 1; row >= 0; row--) {
+                    if (gameState.board[row][col] === null) {
+                        emptySpaces++;
+                    } else if (emptySpaces > 0) {
+                        const targetRow = row + emptySpaces;
+                        gameState.board[targetRow][col] = gameState.board[row][col];
+                        gameState.board[row][col] = null;
+                        
+                        fallingCells.push({
+                            fromRow: row,
+                            toRow: targetRow,
+                            col: col,
+                            fruit: gameState.board[targetRow][col]
+                        });
+                    }
+                }
+                
+                // Generar nuevas frutas
+                for (let row = 0; row < emptySpaces; row++) {
+                    const fruit = CONFIG.FRUITS[Math.floor(Math.random() * CONFIG.FRUITS.length)];
+                    gameState.board[row][col] = fruit;
+                    
+                    fallingCells.push({
+                        fromRow: -1 - row,
+                        toRow: row,
+                        col: col,
+                        fruit: fruit,
+                        isNew: true
+                    });
+                }
+            }
+            
+            // Animar caída
+            animateFallingFruits(fallingCells);
+            
+            // Verificar nuevas coincidencias
+            setTimeout(() => {
+                updateBoardDisplay();
+                const newMatches = findMatches();
+                if (newMatches.length > 0) {
+                    setTimeout(() => {
+                        processMatches(newMatches);
+                    }, 500);
+                }
+            }, 500);
+        }
+
+        function animateFallingFruits(fallingCells) {
+            fallingCells.forEach(cell => {
+                const targetCell = getCellElement(cell.toRow, cell.col);
+                const fruitElement = targetCell.querySelector('.fruit');
+                
+                if (cell.isNew) {
+                    fruitElement.classList.add('spawn-animation');
+                    setTimeout(() => {
+                        fruitElement.classList.remove('spawn-animation');
+                    }, 500);
+                } else {
+                    const fallDistance = (cell.toRow - cell.fromRow) * 70;
+                    fruitElement.style.setProperty('--fall-from', `-${fallDistance}px`);
+                    fruitElement.style.setProperty('--fall-rotate', `${Math.random() * 60 - 30}deg`);
+                    fruitElement.classList.add('fall-animation');
+                    
+                    setTimeout(() => {
+                        fruitElement.classList.remove('fall-animation');
+                        fruitElement.style.removeProperty('--fall-from');
+                        fruitElement.style.removeProperty('--fall-rotate');
+                    }, 500);
+                }
+            });
+        }
+
+        // ============================
+        // EFECTOS VISUALES
+        // ============================
+        function showScoreEffect(points) {
+            const scoreElement = elements.score;
+            const effect = document.createElement('div');
+            effect.className = 'score-effect';
+            effect.textContent = `+${points}`;
+            effect.style.right = '0';
+            effect.style.top = '0';
+            
+            scoreElement.parentElement.style.position = 'relative';
+            scoreElement.parentElement.appendChild(effect);
+            
+            // Efecto visual en el puntaje
+            scoreElement.style.transform = 'scale(1.4)';
+            setTimeout(() => {
+                scoreElement.style.transform = 'scale(1)';
+            }, 300);
+            
+            // Limpiar efecto
+            setTimeout(() => {
+                if (effect.parentElement) {
+                    effect.parentElement.removeChild(effect);
+                }
+            }, 1200);
+        }
+
+        function showComboIndicator(combo) {
+            const comboText = document.createElement('div');
+            comboText.className = 'combo-display';
+            comboText.textContent = `COMBO x${combo}!`;
+            
+            elements.board.appendChild(comboText);
+            
+            setTimeout(() => {
+                comboText.classList.add('active');
+            }, 10);
+            
+            setTimeout(() => {
+                comboText.classList.remove('active');
+                setTimeout(() => {
+                    if (comboText.parentElement) {
+                        comboText.parentElement.removeChild(comboText);
+                    }
+                }, 1200);
+            }, 100);
+        }
+
+        function createParticles(element, count, color) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.backgroundColor = color;
+                particle.style.left = `${centerX}px`;
+                particle.style.top = `${centerY}px`;
+                
+                // Propiedades aleatorias
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1 + Math.random() * 3;
+                const size = 3 + Math.random() * 4;
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                elements.particlesContainer.appendChild(particle);
+                
+                // Animación
+                animateParticle(particle, vx, vy);
+            }
+        }
+
+        function animateParticle(particle, vx, vy) {
+            let x = 0, y = 0, opacity = 1;
+            const duration = 600 + Math.random() * 400;
+            const startTime = Date.now();
+            
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const progress = elapsed / duration;
+                
+                if (progress < 1) {
+                    x += vx;
+                    y += vy;
+                    opacity = 1 - progress;
+                    
+                    particle.style.transform = `translate(${x}px, ${y}px)`;
+                    particle.style.opacity = opacity;
+                    
+                    requestAnimationFrame(update);
+                } else {
+                    if (particle.parentElement) {
+                        particle.parentElement.removeChild(particle);
+                    }
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        function createConfetti(count = 150) {
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFD166', '#06D6A0', '#EF476F', '#9D4EDD', '#FF9E6D', '#38B000'];
+            
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.width = `${6 + Math.random() * 8}px`;
+                confetti.style.height = `${6 + Math.random() * 8}px`;
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                
+                elements.confettiContainer.appendChild(confetti);
+                
+                // Animación
+                const duration = 2000 + Math.random() * 2000;
+                const delay = Math.random() * 500;
+                const rotation = Math.random() * 720 - 360;
+                
+                confetti.style.animation = `
+                    confettiFall ${duration}ms ${delay}ms linear forwards
+                `;
+                confetti.style.transform = `rotate(${rotation}deg)`;
+                
+                // Limpiar
+                setTimeout(() => {
+                    if (confetti.parentElement) {
+                        confetti.parentElement.removeChild(confetti);
+                    }
+                }, duration + delay + 1000);
+            }
+        }
+
+        // ============================
+        // PARTÍCULAS DE FONDO
+        // ============================
+        function initBackgroundParticles() {
+            // Crear partículas de fondo estáticas
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.backgroundColor = `rgba(255, 215, 0, ${0.05 + Math.random() * 0.1})`;
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                particle.style.width = `${2 + Math.random() * 4}px`;
+                particle.style.height = particle.style.width;
+                particle.style.opacity = '0.3';
+                
+                // Animación lenta
+                particle.style.animation = `
+                    floatParticle ${10000 + Math.random() * 20000}ms linear infinite
+                `;
+                particle.style.animationDelay = `${Math.random() * 5000}ms`;
+                
+                elements.particlesContainer.appendChild(particle);
+            }
+        }
+
+        // ============================
+        // UTILIDADES
+        // ============================
+        function getCellElement(row, col) {
+            return document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+        }
+
+        function updateBoardDisplay() {
+            const cells = document.querySelectorAll('.cell');
+            
+            cells.forEach(cell => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                const fruit = gameState.board[row][col];
+                const fruitElement = cell.querySelector('.fruit');
+                
+                if (fruit) {
+                    fruitElement.textContent = fruit.emoji;
+                    fruitElement.style.color = fruit.color;
+                    fruitElement.dataset.value = fruit.value;
+                    fruitElement.dataset.type = fruit.name;
+                }
+                
+                // Actualizar selección
+                if (gameState.selectedCell && 
+                    gameState.selectedCell.row === row && 
+                    gameState.selectedCell.col === col) {
+                    fruitElement.classList.add('selected');
+                } else {
+                    fruitElement.classList.remove('selected');
+                }
+            });
+        }
+
+        function updateGameUI() {
+            elements.score.textContent = gameState.score;
+            elements.moves.textContent = gameState.moves;
+            elements.level.textContent = gameState.level;
+            elements.target.textContent = gameState.targetScore;
+            elements.highScore.textContent = gameState.highScore;
+        }
+
+        // ============================
+        // ESTADO DEL JUEGO
+        // ============================
+        function checkGameStatus() {
+            // Verificar movimientos
+            if (gameState.moves <= 0) {
+                endGame();
+                return;
+            }
+            
+            // Verificar objetivo de nivel
+            if (gameState.score >= gameState.targetScore) {
+                levelUp();
+            }
+        }
+
+        function levelUp() {
+            gameState.level++;
+            gameState.targetScore = CONFIG.TARGET_SCORE * gameState.level;
+            gameState.moves += 10;
+            gameState.powerUps++;
+            
+            // Actualizar UI
+            updateGameUI();
+            
+            // Efectos de nivel
+            elements.level.style.transform = 'scale(1.5)';
+            setTimeout(() => {
+                elements.level.style.transform = 'scale(1)';
+            }, 500);
+            
+            createConfetti(50);
+            
+            // Mostrar mensaje
+            showLevelUpMessage();
+        }
+
+        function showLevelUpMessage() {
+            const message = document.createElement('div');
+            message.className = 'combo-display';
+            message.textContent = `¡NIVEL ${gameState.level}!`;
+            message.style.fontSize = '3rem';
+            message.style.color = '#4CAF50';
+            
+            elements.board.appendChild(message);
+            
+            setTimeout(() => {
+                message.classList.add('active');
+            }, 10);
+            
+            setTimeout(() => {
+                message.classList.remove('active');
+                setTimeout(() => {
+                    if (message.parentElement) {
+                        message.parentElement.removeChild(message);
+                    }
+                }, 1200);
+            }, 2000);
+        }
+
+        function endGame() {
+            gameState.gameActive = false;
+            
+            // Actualizar récord
+            if (gameState.score > gameState.highScore) {
+                gameState.highScore = gameState.score;
+                localStorage.setItem('fruitBlastHighScore', gameState.highScore);
+                elements.highScore.textContent = gameState.highScore;
+                
+                // Celebrar nuevo récord
+                createConfetti(200);
+                showNewRecordMessage();
+            } else {
+                createConfetti(100);
+            }
+            
+            // Mostrar resultados
+            setTimeout(() => {
+                showGameOver();
+            }, 1500);
+        }
+
+        function showNewRecordMessage() {
+            const message = document.createElement('div');
+            message.className = 'combo-display';
+            message.textContent = '¡NUEVO RÉCORD!';
+            message.style.fontSize = '2.5rem';
+            message.style.color = '#FFD700';
+            
+            elements.board.appendChild(message);
+            
+            setTimeout(() => {
+                message.classList.add('active');
+            }, 10);
+            
+            setTimeout(() => {
+                message.classList.remove('active');
+                setTimeout(() => {
+                    if (message.parentElement) {
+                        message.parentElement.removeChild(message);
+                    }
+                }, 1200);
+            }, 3000);
+        }
+
+        function showGameOver() {
+            alert(`¡Juego Terminado!\nPuntuación: ${gameState.score}\nNivel alcanzado: ${gameState.level}\nCoincidencias realizadas: ${gameState.matchesCount}`);
+        }
+
+        // ============================
+        // POWER-UPS Y PISTAS
+        // ============================
+        function usePowerUp() {
+            if (!gameState.gameActive || gameState.powerUps <= 0) return;
+            
+            gameState.powerUps--;
+            
+            // Seleccionar power-up aleatorio
+            const powerUp = CONFIG.POWER_UPS[Math.floor(Math.random() * CONFIG.POWER_UPS.length)];
+            
+            // Aplicar efecto
+            switch(powerUp.name) {
+                case 'Rayos X':
+                    activateLightningPower();
+                    break;
+                case 'Bomba Frutal':
+                    activateBombPower();
+                    break;
+                case 'Cambiador':
+                    activateShufflePower();
+                    break;
+                case 'Congelador':
+                    activateFreezePower();
+                    break;
+            }
+            
+            // Efecto visual
+            elements.powerUpBtn.innerHTML = `<i class="${powerUp.icon}"></i> ${powerUp.name}`;
+            elements.powerUpBtn.disabled = true;
+            
+            setTimeout(() => {
+                elements.powerUpBtn.innerHTML = `<i class="fas fa-bolt"></i> POWER-UP (${gameState.powerUps})`;
+                elements.powerUpBtn.disabled = gameState.powerUps <= 0;
+            }, 2000);
+        }
+
+        function activateLightningPower() {
+            // Eliminar fila aleatoria
+            const row = Math.floor(Math.random() * CONFIG.BOARD_SIZE);
+            
+            for (let col = 0; col < CONFIG.BOARD_SIZE; col++) {
+                if (gameState.board[row][col]) {
+                    const cell = getCellElement(row, col);
+                    createMatchEffects(cell, '#FFD700');
+                    gameState.score += gameState.board[row][col].value * 2;
+                }
+                gameState.board[row][col] = null;
+            }
+            
+            updateGameUI();
+            setTimeout(() => dropFruits(), 600);
+        }
+
+        function activateBombPower() {
+            // Eliminar área 3x3 aleatoria
+            const centerRow = 2 + Math.floor(Math.random() * (CONFIG.BOARD_SIZE - 4));
+            const centerCol = 2 + Math.floor(Math.random() * (CONFIG.BOARD_SIZE - 4));
+            
+            for (let r = centerRow - 1; r <= centerRow + 1; r++) {
+                for (let c = centerCol - 1; c <= centerCol + 1; c++) {
+                    if (gameState.board[r] && gameState.board[r][c]) {
+                        const cell = getCellElement(r, c);
+                        createMatchEffects(cell, '#FF0000');
+                        gameState.score += gameState.board[r][c].value * 3;
+                        gameState.board[r][c] = null;
+                    }
+                }
+            }
+            
+            updateGameUI();
+            setTimeout(() => dropFruits(), 600);
+        }
+
+        function activateShufflePower() {
+            // Mezclar todas las frutas
+            const allFruits = [];
+            
+            for (let row = 0; row < CONFIG.BOARD_SIZE; row++) {
+                for (let col = 0; col < CONFIG.BOARD_SIZE; col++) {
+                    if (gameState.board[row][col]) {
+                        allFruits.push(gameState.board[row][col]);
+                    }
+                }
+            }
+            
+            // Mezclar aleatoriamente
+            for (let i = allFruits.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allFruits[i], allFruits[j]] = [allFruits[j], allFruits[i]];
+            }
+            
+            // Reasignar
+            let index = 0;
+            for (let row = 0; row < CONFIG.BOARD_SIZE; row++) {
+                for (let col = 0; col < CONFIG.BOARD_SIZE; col++) {
+                    if (gameState.board[row][col]) {
+                        gameState.board[row][col] = allFruits[index++];
+                    }
+                }
+            }
+            
+            updateBoardDisplay();
+        }
+
+        function activateFreezePower() {
+            // Congelar tiempo - agregar movimientos
+            gameState.moves += 5;
+            updateGameUI();
+            
+            // Efecto visual
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.style.boxShadow = '0 0 20px rgba(0, 150, 255, 0.7)';
+                setTimeout(() => {
+                    cell.style.boxShadow = '';
+                }, 1000);
+            });
+        }
+
+        function showHint() {
+            if (!gameState.gameActive) return;
+            
+            // Buscar un movimiento válido
+            for (let row = 0; row < CONFIG.BOARD_SIZE; row++) {
+                for (let col = 0; col < CONFIG.BOARD_SIZE - 1; col++) {
+                    // Probar intercambio con derecha
+                    [gameState.board[row][col], gameState.board[row][col + 1]] = 
+                    [gameState.board[row][col + 1], gameState.board[row][col]];
+                    
+                    const matches = findMatches();
+                    
+                    [gameState.board[row][col + 1], gameState.board[row][col]] = 
+                    [gameState.board[row][col], gameState.board[row][col + 1]];
+                    
+                    if (matches.length > 0) {
+                        highlightHint(row, col, row, col + 1);
+                        return;
+                    }
+                }
+            }
+            
+            // Buscar verticalmente
+            for (let col = 0; col < CONFIG.BOARD_SIZE; col++) {
+                for (let row = 0; row < CONFIG.BOARD_SIZE - 1; row++) {
+                    [gameState.board[row][col], gameState.board[row + 1][col]] = 
+                    [gameState.board[row + 1][col], gameState.board[row][col]];
+                    
+                    const matches = findMatches();
+                    
+                    [gameState.board[row + 1][col], gameState.board[row][col]] = 
+                    [gameState.board[row][col], gameState.board[row + 1][col]];
+                    
+                    if (matches.length > 0) {
+                        highlightHint(row, col, row + 1, col);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function highlightHint(row1, col1, row2, col2) {
+            const cell1 = getCellElement(row1, col1);
+            const cell2 = getCellElement(row2, col2);
+            
+            // Crear efecto de resaltado
+            const originalBorder1 = cell1.style.border;
+            const originalBorder2 = cell2.style.border;
+            
+            cell1.style.border = '3px solid #FFD700';
+            cell2.style.border = '3px solid #FFD700';
+            cell1.style.boxShadow = '0 0 25px rgba(255, 215, 0, 0.8)';
+            cell2.style.boxShadow = '0 0 25px rgba(255, 215, 0, 0.8)';
+            
+            // Crear partículas
+            createParticles(cell1, 3, '#FFD700');
+            createParticles(cell2, 3, '#FFD700');
+            
+            // Restaurar después de 2 segundos
+            setTimeout(() => {
+                cell1.style.border = originalBorder1;
+                cell2.style.border = originalBorder2;
+                cell1.style.boxShadow = '';
+                cell2.style.boxShadow = '';
+            }, 2000);
+        }
+
+        // ============================
+        // EVENT LISTENERS
+        // ============================
+        function setupEventListeners() {
+            elements.newGameBtn.addEventListener('click', initGame);
+            elements.hintBtn.addEventListener('click', showHint);
+            elements.powerUpBtn.addEventListener('click', usePowerUp);
+            
+            // Actualizar power-up button
+            elements.powerUpBtn.innerHTML = `<i class="fas fa-bolt"></i> POWER-UP (${gameState.powerUps})`;
+            
+            // Event listeners para teclado
+            document.addEventListener('keydown', (e) => {
+                if (!gameState.gameActive) return;
+                
+                switch(e.key) {
+                    case 'r':
+                    case 'R':
+                        initGame();
+                        break;
+                    case 'h':
+                    case 'H':
+                        showHint();
+                        break;
+                    case 'p':
+                    case 'P':
+                        usePowerUp();
+                        break;
+                    case 'Escape':
+                        gameState.selectedCell = null;
+                        updateBoardDisplay();
+                        break;
+                }
+            });
+        }
+
+        // ============================
+        // INICIAR JUEGO
+        // ============================
+        window.addEventListener('DOMContentLoaded', init);
+        
+        // Estilos CSS adicionales para animaciones
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+            
+            @keyframes confettiFall {
+                0% { 
+                    transform: translateY(0) rotate(0); 
+                    opacity: 1; 
+                }
+                100% { 
+                    transform: translateY(100vh) rotate(360deg); 
+                    opacity: 0; 
+                }
+            }
+            
+            @keyframes floatParticle {
+                0%, 100% { 
+                    transform: translate(0, 0) rotate(0); 
+                }
+                25% { 
+                    transform: translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px) rotate(90deg); 
+                }
+                50% { 
+                    transform: translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px) rotate(180deg); 
+                }
+                75% { 
+                    transform: translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px) rotate(270deg); 
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
